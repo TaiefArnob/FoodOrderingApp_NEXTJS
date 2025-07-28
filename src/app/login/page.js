@@ -32,7 +32,7 @@ const Login = () => {
 
     if (res?.ok) {
       toast.success("Login successful!");
-      setTimeout(() => router.push("/dashboard"), 1000);
+      setTimeout(() => router.push("/"), 1000);
     } else {
       toast.error("Invalid email or password");
     }

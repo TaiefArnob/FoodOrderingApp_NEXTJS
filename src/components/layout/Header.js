@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import React, { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
+import { useSession, signOut } from "next-auth/react";
+import { MdLogout, MdLogin } from "react-icons/md";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -13,6 +15,9 @@ const navLinks = [
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { data: session } = useSession();
+
+  const isLoggedIn = !!session;
 
   return (
     <header className="bg-[#1a0000] shadow-md sticky top-0 z-50 rounded-lg">
@@ -46,20 +51,33 @@ const Header = () => {
           ))}
         </nav>
 
-        {/* Desktop Register then Login with smaller gap */}
+        {/* Desktop Auth */}
         <div className="hidden md:flex items-center gap-3">
-          <Link
-            href="/register"
-            className="text-amber-400 hover:text-amber-500 font-semibold cursor-pointer transition text-sm"
-          >
-            Register
-          </Link>
-          <Link
-            href="/login"
-            className="bg-amber-400 hover:bg-amber-500 text-[#4b0000] px-5 py-1.5 rounded-full shadow-lg transition text-sm"
-          >
-            Login
-          </Link>
+          {isLoggedIn ? (
+            <button
+              onClick={() => signOut()}
+              className="flex items-center gap-1 bg-amber-400 hover:bg-amber-500 text-[#4b0000] px-5 py-1.5 rounded-full shadow-lg transition text-sm"
+            >
+              <MdLogout size={20} />
+              Logout
+            </button>
+          ) : (
+            <>
+              <Link
+                href="/register"
+                className="text-amber-400 hover:text-amber-500 font-semibold transition text-sm"
+              >
+                Register
+              </Link>
+              <Link
+                href="/login"
+                className="flex items-center gap-1 bg-amber-400 hover:bg-amber-500 text-[#4b0000] px-5 py-1.5 rounded-full shadow-lg transition text-sm"
+              >
+                <MdLogin size={20} />
+                Login
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -85,20 +103,37 @@ const Header = () => {
               {name}
             </Link>
           ))}
-          <Link
-            href="/register"
-            className="block text-center text-amber-400 hover:text-amber-500 font-semibold transition text-sm"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Register
-          </Link>
-          <Link
-            href="/login"
-            className="block text-center bg-amber-400 hover:bg-amber-500 text-[#4b0000] px-5 py-1.5 rounded-full shadow-md transition text-sm"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Login
-          </Link>
+
+          {isLoggedIn ? (
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                signOut();
+              }}
+              className="flex items-center justify-center gap-1 w-full bg-amber-400 hover:bg-amber-500 text-[#4b0000] px-5 py-1.5 rounded-full shadow-md transition text-sm"
+            >
+              <MdLogout size={20} />
+              Logout
+            </button>
+          ) : (
+            <>
+              <Link
+                href="/register"
+                className="block text-center text-amber-400 hover:text-amber-500 font-semibold transition text-sm"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Register
+              </Link>
+              <Link
+                href="/login"
+                className="flex items-center justify-center gap-1 w-full bg-amber-400 hover:bg-amber-500 text-[#4b0000] px-5 py-1.5 rounded-full shadow-md transition text-sm"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <MdLogin size={20} />
+                Login
+              </Link>
+            </>
+          )}
         </nav>
       )}
     </header>

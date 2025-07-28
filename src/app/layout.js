@@ -2,6 +2,8 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Providers from "@/components/AppContext";
+ // ✅ import the client wrapper
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -19,16 +21,18 @@ export default function RootLayout({ children }) {
       <body
         className={`${roboto.className} antialiased text-[#4b0000]`}
         style={{
-          backgroundColor: "#fff9e6", // Soft yellowish off-white
+          backgroundColor: "#fff9e6",
           backgroundAttachment: "fixed",
           backgroundSize: "cover",
         }}
       >
-        <main className="max-w-7xl mx-auto p-4">
-          <Header/>
-          {children}
-          <Footer/>
+        <Providers> {/* ✅ Wrap inside client-side Providers */}
+          <main className="max-w-7xl mx-auto p-4">
+            <Header />
+            {children}
+            <Footer />
           </main>
+        </Providers>
       </body>
     </html>
   );
