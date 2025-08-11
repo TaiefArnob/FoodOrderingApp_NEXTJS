@@ -18,6 +18,7 @@ const Header = () => {
   const { data: session } = useSession();
 
   const isLoggedIn = !!session;
+  const defaultAvatar = "/avatar.png"; // Place a default avatar in /public
 
   return (
     <header className="bg-[#1a0000] shadow-md sticky top-0 z-50 rounded-lg">
@@ -52,15 +53,32 @@ const Header = () => {
         </nav>
 
         {/* Desktop Auth */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-4">
           {isLoggedIn ? (
-            <button
-              onClick={() => signOut()}
-              className="flex items-center gap-1 bg-amber-400 hover:bg-amber-500 text-[#4b0000] px-5 py-1.5 rounded-full shadow-lg transition text-sm"
-            >
-              <MdLogout size={20} />
-              Logout
-            </button>
+            <>
+              {/* Profile Picture + Name */}
+              <div className="flex items-center gap-2">
+                <Image
+                  src={session.user.profileImage || defaultAvatar}
+                  alt={session.user.name || "User"}
+                  width={36}
+                  height={36}
+                  className="rounded-full object-cover border border-amber-400"
+                />
+                <span className="text-amber-100 font-medium">
+                  {session.user.name}
+                </span>
+              </div>
+
+              {/* Logout */}
+              <button
+                onClick={() => signOut()}
+                className="flex items-center gap-1 bg-amber-400 hover:bg-amber-500 text-[#4b0000] px-4 py-1.5 rounded-full shadow-lg transition text-sm"
+              >
+                <MdLogout size={20} />
+                Logout
+              </button>
+            </>
           ) : (
             <>
               <Link
@@ -105,16 +123,28 @@ const Header = () => {
           ))}
 
           {isLoggedIn ? (
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                signOut();
-              }}
-              className="flex items-center justify-center gap-1 w-full bg-amber-400 hover:bg-amber-500 text-[#4b0000] px-5 py-1.5 rounded-full shadow-md transition text-sm"
-            >
-              <MdLogout size={20} />
-              Logout
-            </button>
+            <>
+              <div className="flex items-center gap-2 px-2">
+                <Image
+                  src={session.user.profileImage || defaultAvatar}
+                  alt={session.user.name || "User"}
+                  width={32}
+                  height={32}
+                  className="rounded-full object-cover border border-amber-400"
+                />
+                <span>{session.user.name}</span>
+              </div>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  signOut();
+                }}
+                className="flex items-center justify-center gap-1 w-full bg-amber-400 hover:bg-amber-500 text-[#4b0000] px-5 py-1.5 rounded-full shadow-md transition text-sm"
+              >
+                <MdLogout size={20} />
+                Logout
+              </button>
+            </>
           ) : (
             <>
               <Link

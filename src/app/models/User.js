@@ -3,6 +3,11 @@ import bcrypt from "bcryptjs";
 
 const UserSchema = new Schema(
   {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
+    },
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -14,16 +19,19 @@ const UserSchema = new Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
+      select: false, // Hide password by default in queries
+    },
+    profileImage: {
+      type: String, // Cloudinary URL
+      default: "",  // If empty, show fallback avatar in UI
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
+// Hash password before saving
 UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -32,6 +40,11 @@ UserSchema.pre("save", async function (next) {
     next(err);
   }
 });
+
+// Optional method to compare passwords
+UserSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
 const User = models.User || model("User", UserSchema);
 export default User;
