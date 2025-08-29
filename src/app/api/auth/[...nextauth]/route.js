@@ -24,7 +24,6 @@ export const authOptions = {
 
         await mongoose.connect(process.env.MONGO_URL);
 
-        // Select password explicitly because it's hidden by default
         const user = await User.findOne({ email }).select("+password");
         if (!user) return null;
 
@@ -35,6 +34,8 @@ export const authOptions = {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
+          phone: user.phone || "",
+          address: user.address || "",
           profileImage: user.profileImage || null,
         };
       },
@@ -45,19 +46,34 @@ export const authOptions = {
     error: "/login",
   },
   callbacks: {
-    async jwt({ token, user, profile }) {
+    async jwt({ token, user, profile, trigger, session }) {
+      // Initial login
       if (user) {
         token.id = user.id;
         token.name = user.name || profile?.name || "";
         token.email = user.email;
+        token.phone = user.phone || "";
+        token.address = user.address || "";
         token.profileImage = user.profileImage || profile?.picture || null;
       }
+
+      // When update() is called from the client
+      if (trigger === "update" && session?.user) {
+        token.name = session.user.name;
+        token.email = session.user.email;
+        token.phone = session.user.phone;
+        token.address = session.user.address;
+        token.profileImage = session.user.profileImage || null;
+      }
+
       return token;
     },
     async session({ session, token }) {
       session.user.id = token.id;
       session.user.name = token.name;
       session.user.email = token.email;
+      session.user.phone = token.phone;
+      session.user.address = token.address;
       session.user.profileImage = token.profileImage;
       return session;
     },
@@ -65,5 +81,4 @@ export const authOptions = {
 };
 
 const handler = NextAuth(authOptions);
-
 export { handler as GET, handler as POST };

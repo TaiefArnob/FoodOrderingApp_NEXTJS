@@ -1,64 +1,56 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 const Register = () => {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/");
+    }
+  }, [status, router]);
 
   const [name, setName] = useState("");
   const [profileFile, setProfileFile] = useState(null);
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
+  // ✅ Validate Bangladeshi Phone Numbers (starts with +8801 or 01, 11 digits)
+  const validateBangladeshiPhone = (phone) => {
+    const regex = /^(?:\+8801|01)[3-9]\d{8}$/;
+    return regex.test(phone);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Basic validation
-    if (!name) {
-      toast.error("Name is required");
-      setLoading(false);
-      return;
-    }
-    if (!email) {
-      toast.error("Email is required");
-      setLoading(false);
-      return;
-    }
-    if (!validateEmail(email)) {
-      toast.error("Invalid email");
-      setLoading(false);
-      return;
-    }
-    if (!password || !confirmPassword) {
-      toast.error("Both password fields are required");
-      setLoading(false);
-      return;
-    }
-    if (password.length < 6) {
-      toast.error("Password too short");
-      setLoading(false);
-      return;
-    }
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      setLoading(false);
-      return;
-    }
+    if (!name) return toast.error("Name is required"), setLoading(false);
+    if (!email) return toast.error("Email is required"), setLoading(false);
+    if (!validateEmail(email)) return toast.error("Invalid email"), setLoading(false);
+    if (!phone) return toast.error("Phone number is required"), setLoading(false);
+    if (!validateBangladeshiPhone(phone)) return toast.error("Invalid Bangladeshi phone number"), setLoading(false);
+    if (!address) return toast.error("Address is required"), setLoading(false);
+    if (!password || !confirmPassword) return toast.error("Both password fields are required"), setLoading(false);
+    if (password.length < 6) return toast.error("Password too short"), setLoading(false);
+    if (password !== confirmPassword) return toast.error("Passwords do not match"), setLoading(false);
 
     try {
       let profileImageUrl = "";
 
-      // Upload profile picture if provided
       if (profileFile) {
         const formData = new FormData();
         formData.append("file", profileFile);
@@ -74,11 +66,17 @@ const Register = () => {
         profileImageUrl = uploadData.url;
       }
 
-      // Send data to register API
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, profileImage: profileImageUrl }),
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          address,
+          password,
+          profileImage: profileImageUrl,
+        }),
       });
 
       const data = await res.json();
@@ -95,8 +93,12 @@ const Register = () => {
 
   const handleGoogleLogin = () => {
     toast("Redirecting to Google...");
-    signIn("google");
+    signIn("google", { callbackUrl: "/" });
   };
+
+  if (status === "loading") {
+    return <p className="text-center mt-10">Checking session...</p>;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-50 to-amber-100 px-4">
@@ -146,6 +148,31 @@ const Register = () => {
             />
           </div>
 
+          {/* Phone */}
+          <div>
+            <label className="block mb-1 font-semibold text-[#4b0000]">Phone (BD)</label>
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full px-4 py-3 border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 text-[#4b0000]"
+              placeholder="+8801XXXXXXXXX"
+              required
+            />
+          </div>
+
+          {/* Address */}
+          <div>
+            <label className="block mb-1 font-semibold text-[#4b0000]">Address</label>
+            <textarea
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="w-full px-4 py-3 border border-amber-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 text-[#4b0000]"
+              placeholder="Your full address"
+              required
+            />
+          </div>
+
           {/* Password */}
           <div>
             <label className="block mb-1 font-semibold text-[#4b0000]">Password</label>
@@ -181,9 +208,7 @@ const Register = () => {
             type="submit"
             disabled={loading}
             className={`w-full flex items-center justify-center gap-2 ${
-              loading
-                ? "bg-amber-300 cursor-not-allowed"
-                : "bg-amber-400 hover:bg-amber-500"
+              loading ? "bg-amber-300 cursor-not-allowed" : "bg-amber-400 hover:bg-amber-500"
             } text-[#4b0000] font-semibold py-3 rounded-full shadow-md transition duration-300`}
           >
             {loading ? "Registering..." : "Register"}

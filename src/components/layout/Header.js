@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 import { useSession, signOut } from "next-auth/react";
 import { MdLogout, MdLogin } from "react-icons/md";
+import { FaUserCircle } from "react-icons/fa";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -18,7 +19,7 @@ const Header = () => {
   const { data: session } = useSession();
 
   const isLoggedIn = !!session;
-  const defaultAvatar = "/avatar.png"; // Place a default avatar in /public
+  const firstName = session?.user?.name?.split(" ")[0] || "User";
 
   return (
     <header className="bg-[#1a0000] shadow-md sticky top-0 z-50 rounded-lg">
@@ -56,19 +57,26 @@ const Header = () => {
         <div className="hidden md:flex items-center gap-4">
           {isLoggedIn ? (
             <>
-              {/* Profile Picture + Name */}
-              <div className="flex items-center gap-2">
-                <Image
-                  src={session.user.profileImage || defaultAvatar}
-                  alt={session.user.name || "User"}
-                  width={36}
-                  height={36}
-                  className="rounded-full object-cover border border-amber-400"
-                />
+              {/* Profile Picture + Name -> Link to Profile */}
+              <Link
+                href="/profile"
+                className="flex items-center gap-2 hover:opacity-80 transition"
+              >
+                {session?.user?.profileImage ? (
+                  <Image
+                    src={session.user.profileImage}
+                    alt={firstName}
+                    width={36}
+                    height={36}
+                    className="rounded-full object-cover border border-amber-400"
+                  />
+                ) : (
+                  <FaUserCircle className="text-amber-400 text-3xl" />
+                )}
                 <span className="text-amber-100 font-medium">
-                  {session.user.name}
+                  {firstName}
                 </span>
-              </div>
+              </Link>
 
               {/* Logout */}
               <button
@@ -124,16 +132,26 @@ const Header = () => {
 
           {isLoggedIn ? (
             <>
-              <div className="flex items-center gap-2 px-2">
-                <Image
-                  src={session.user.profileImage || defaultAvatar}
-                  alt={session.user.name || "User"}
-                  width={32}
-                  height={32}
-                  className="rounded-full object-cover border border-amber-400"
-                />
-                <span>{session.user.name}</span>
-              </div>
+              {/* Profile Link in Mobile */}
+              <Link
+                href="/profile"
+                className="flex items-center gap-2 px-2 hover:opacity-80 transition"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {session?.user?.profileImage ? (
+                  <Image
+                    src={session.user.profileImage}
+                    alt={firstName}
+                    width={32}
+                    height={32}
+                    className="rounded-full object-cover border border-amber-400"
+                  />
+                ) : (
+                  <FaUserCircle className="text-amber-400 text-2xl" />
+                )}
+                <span>{firstName}</span>
+              </Link>
+
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);

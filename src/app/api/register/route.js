@@ -4,10 +4,13 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
-    const { name, email, password, profileImage } = await req.json();
+    const { name, email, password, profileImage, phone, address } = await req.json();
 
     if (!name || !email || !password) {
-      return NextResponse.json({ error: "Name, email and password are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Name, email and password are required" },
+        { status: 400 }
+      );
     }
 
     await mongoose.connect(process.env.MONGO_URL);
@@ -17,11 +20,13 @@ export async function POST(req) {
       return NextResponse.json({ error: "Email already registered" }, { status: 400 });
     }
 
-    const newUser = new User({ 
-      name, 
-      email, 
-      password, 
-      profileImage: profileImage || "" // fallback if no profileImage provided
+    const newUser = new User({
+      name,
+      email,
+      password,
+      profileImage: profileImage || "",
+      phone: phone || "",
+      address: address || "",
     });
     const createdUser = await newUser.save();
 
@@ -32,7 +37,9 @@ export async function POST(req) {
         name: createdUser.name,
         email: createdUser.email,
         profileImage: createdUser.profileImage || "",
-      }
+        phone: createdUser.phone,
+        address: createdUser.address,
+      },
     });
   } catch (error) {
     console.error(error);

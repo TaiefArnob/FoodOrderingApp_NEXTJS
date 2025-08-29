@@ -1,14 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import toast, { Toaster } from "react-hot-toast";
 import Link from "next/link";
 
 const Login = () => {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // ✅ Redirect if already logged in
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/");
+    }
+  }, [status, router]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,8 +50,13 @@ const Login = () => {
 
   const handleGoogleLogin = () => {
     toast("Redirecting to Google...");
-    signIn("google");
+    signIn("google", { callbackUrl: "/" }); // ✅ Redirects to home after Google login
   };
+
+  // Optional loading state while checking session
+  if (status === "loading") {
+    return <p className="text-center mt-10">Checking session...</p>;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-50 to-amber-100 px-4">
@@ -82,33 +95,7 @@ const Login = () => {
               loading ? "bg-amber-300 cursor-not-allowed" : "bg-amber-400 hover:bg-amber-500"
             } text-[#4b0000] font-semibold py-3 rounded-full shadow-md transition duration-300`}
           >
-            {loading ? (
-              <>
-                <svg
-                  className="animate-spin h-5 w-5 text-[#4b0000]"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                  ></path>
-                </svg>
-                Logging in...
-              </>
-            ) : (
-              "Login"
-            )}
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 

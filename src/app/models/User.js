@@ -19,11 +19,21 @@ const UserSchema = new Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
-      select: false, // Hide password by default in queries
+      select: false,
     },
     profileImage: {
-      type: String, // Cloudinary URL
-      default: "",  // If empty, show fallback avatar in UI
+      type: String,
+      default: "",
+    },
+    phone: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    address: {
+      type: String,
+      trim: true,
+      default: "",
     },
   },
   { timestamps: true }
@@ -41,7 +51,7 @@ UserSchema.pre("save", async function (next) {
   }
 });
 
-// Optional method to compare passwords
+// Compare password
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
