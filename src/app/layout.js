@@ -3,7 +3,7 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Providers from "@/components/AppContext";
- // ✅ import the client wrapper
+import { CartProvider } from "@/context/CartContext"; // ✅ import the client wrapper
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -26,12 +26,14 @@ export default function RootLayout({ children }) {
           backgroundSize: "cover",
         }}
       >
-        <Providers> {/* ✅ Wrap inside client-side Providers */}
-          <main className="max-w-7xl mx-auto p-4">
-            <Header />
-            {children}
-            <Footer />
-          </main>
+        <Providers> {/* Client-side providers */}
+          <CartProvider> {/* ✅ Wrap entire app with CartProvider */}
+            <main className="max-w-7xl mx-auto p-4">
+              <Header />
+              {children}
+              <Footer />
+            </main>
+          </CartProvider>
         </Providers>
       </body>
     </html>

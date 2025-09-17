@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import React, { useState } from "react";
@@ -6,6 +7,8 @@ import { FiMenu, FiX } from "react-icons/fi";
 import { useSession, signOut } from "next-auth/react";
 import { MdLogout, MdLogin } from "react-icons/md";
 import { FaUserCircle } from "react-icons/fa";
+import { AiOutlineShoppingCart } from "react-icons/ai"; // Professional cart icon
+import { useCart } from "@/context/CartContext";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -17,9 +20,10 @@ const navLinks = [
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { data: session } = useSession();
-
   const isLoggedIn = !!session;
   const firstName = session?.user?.name?.split(" ")[0] || "User";
+
+  const { cart = [] } = useCart() || {};
 
   return (
     <header className="bg-[#1a0000] shadow-md sticky top-0 z-50 rounded-lg">
@@ -40,7 +44,7 @@ const Header = () => {
           />
         </Link>
 
-        {/* Desktop Center Nav */}
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex flex-1 justify-center items-center gap-6 font-semibold text-amber-100 text-base">
           {navLinks.map(({ name, href }) => (
             <Link
@@ -51,34 +55,58 @@ const Header = () => {
               {name}
             </Link>
           ))}
+
+          {/* ✅ My Orders link - only visible when logged in */}
+          {isLoggedIn && (
+            <Link
+              href="/orders"
+              className="hover:text-amber-400 transition duration-200"
+            >
+              My Orders
+            </Link>
+          )}
         </nav>
 
-        {/* Desktop Auth */}
+        {/* Desktop Auth + Cart */}
         <div className="hidden md:flex items-center gap-4">
+          {/* Cart */}
+          {isLoggedIn && !session?.user?.admin && (
+            <Link
+              href="/cart"
+              className="relative flex items-center justify-center text-amber-100 hover:text-amber-400 transition"
+            >
+              <AiOutlineShoppingCart size={28} />
+              {cart.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                  {cart.length}
+                </span>
+              )}
+            </Link>
+          )}
+
+          {/* User Profile + Logout */}
           {isLoggedIn ? (
             <>
-              {/* Profile Picture + Name -> Link to Profile */}
               <Link
                 href="/profile"
                 className="flex items-center gap-2 hover:opacity-80 transition"
               >
                 {session?.user?.profileImage ? (
-                  <Image
-                    src={session.user.profileImage}
-                    alt={firstName}
-                    width={36}
-                    height={36}
-                    className="rounded-full object-cover border border-amber-400"
-                  />
+                  <div className="w-9 h-9 rounded-full overflow-hidden border border-amber-400">
+                    <Image
+                      src={session.user.profileImage}
+                      alt={firstName}
+                      width={36}
+                      height={36}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
                 ) : (
                   <FaUserCircle className="text-amber-400 text-3xl" />
                 )}
-                <span className="text-amber-100 font-medium">
-                  {firstName}
-                </span>
+                <span className="text-amber-100 font-medium">{firstName}</span>
               </Link>
 
-              {/* Logout */}
               <button
                 onClick={() => signOut()}
                 className="flex items-center gap-1 bg-amber-400 hover:bg-amber-500 text-[#4b0000] px-4 py-1.5 rounded-full shadow-lg transition text-sm"
@@ -116,7 +144,7 @@ const Header = () => {
         </button>
       </div>
 
-      {/* Mobile Nav Menu */}
+      {/* Mobile Navigation */}
       {mobileMenuOpen && (
         <nav className="md:hidden bg-[#1a0000] px-4 pb-4 space-y-2 text-amber-100 font-semibold text-base rounded-b-lg">
           {navLinks.map(({ name, href }) => (
@@ -130,22 +158,51 @@ const Header = () => {
             </Link>
           ))}
 
+          {/* ✅ My Orders link in mobile */}
+          {isLoggedIn && (
+            <Link
+              href="/orders"
+              className="block py-2 border-b border-amber-400 hover:text-amber-300 transition duration-200"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              My Orders
+            </Link>
+          )}
+
           {isLoggedIn ? (
             <>
-              {/* Profile Link in Mobile */}
+              {/* Cart in Mobile */}
+              {!session?.user?.admin && (
+                <Link
+                  href="/cart"
+                  className="flex items-center justify-center gap-2 relative bg-amber-400 text-[#4b0000] py-1.5 rounded-full shadow-md hover:bg-amber-500 transition"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <AiOutlineShoppingCart size={22} />
+                  {cart.length > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                      {cart.length}
+                    </span>
+                  )}
+                  <span>Cart</span>
+                </Link>
+              )}
+
               <Link
                 href="/profile"
                 className="flex items-center gap-2 px-2 hover:opacity-80 transition"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {session?.user?.profileImage ? (
-                  <Image
-                    src={session.user.profileImage}
-                    alt={firstName}
-                    width={32}
-                    height={32}
-                    className="rounded-full object-cover border border-amber-400"
-                  />
+                  <div className="w-8 h-8 rounded-full overflow-hidden border border-amber-400">
+                    <Image
+                      src={session.user.profileImage}
+                      alt={firstName}
+                      width={32}
+                      height={32}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
                 ) : (
                   <FaUserCircle className="text-amber-400 text-2xl" />
                 )}

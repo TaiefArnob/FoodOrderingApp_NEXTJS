@@ -37,6 +37,7 @@ export const authOptions = {
           phone: user.phone || "",
           address: user.address || "",
           profileImage: user.profileImage || null,
+          admin: user.admin || false, // ✅ Include admin here
         };
       },
     }),
@@ -47,7 +48,6 @@ export const authOptions = {
   },
   callbacks: {
     async jwt({ token, user, profile, trigger, session }) {
-      // Initial login
       if (user) {
         token.id = user.id;
         token.name = user.name || profile?.name || "";
@@ -55,15 +55,16 @@ export const authOptions = {
         token.phone = user.phone || "";
         token.address = user.address || "";
         token.profileImage = user.profileImage || profile?.picture || null;
+        token.admin = user.admin || false; // ✅ include admin in token
       }
 
-      // When update() is called from the client
       if (trigger === "update" && session?.user) {
         token.name = session.user.name;
         token.email = session.user.email;
         token.phone = session.user.phone;
         token.address = session.user.address;
         token.profileImage = session.user.profileImage || null;
+        token.admin = session.user.admin || false; // ✅ include admin on update
       }
 
       return token;
@@ -75,6 +76,7 @@ export const authOptions = {
       session.user.phone = token.phone;
       session.user.address = token.address;
       session.user.profileImage = token.profileImage;
+      session.user.admin = token.admin || false; // ✅ now session.user.admin works
       return session;
     },
   },

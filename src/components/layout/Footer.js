@@ -65,11 +65,11 @@ const Footer = () => {
           <h4 className="text-lg font-semibold mb-4">Contact Us</h4>
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
-              <FaMapMarkerAlt className="mt-1" /> 123 Pipra Street, Dhaka,
+              <FaMapMarkerAlt className="mt-1" /> Northern Front Road, Dhaka,
               Bangladesh
             </li>
             <li className="flex items-start gap-2">
-              <FaPhoneAlt className="mt-1" /> +880 1234 567890
+              <FaPhoneAlt className="mt-1" /> +8801682926129
             </li>
             <li className="flex items-start gap-2">
               <FaEnvelope className="mt-1" /> support@piprakitchen.com
