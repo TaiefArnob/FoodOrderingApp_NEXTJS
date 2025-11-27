@@ -108,7 +108,8 @@ const Footer = () => {
 
       {/* Footer Bottom */}
       <div className="text-center text-sm mt-6 text-amber-300">
-        © {new Date().getFullYear()} Pipra Kitchen. All rights reserved.
+        © {new Date().getFullYear()} Pipra Kitchen. All rights reserved. <br />
+        Created by <span className="font-semibold">TaiefArnob</span>
       </div>
     </footer>
   );
