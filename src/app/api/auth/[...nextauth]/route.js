@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import User from "@/app/models/User";
 
-export const authOptions = {
+const handler = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
@@ -37,7 +37,7 @@ export const authOptions = {
           phone: user.phone || "",
           address: user.address || "",
           profileImage: user.profileImage || null,
-          admin: user.admin || false, // ✅ Include admin here
+          admin: user.admin || false,
         };
       },
     }),
@@ -55,7 +55,7 @@ export const authOptions = {
         token.phone = user.phone || "";
         token.address = user.address || "";
         token.profileImage = user.profileImage || profile?.picture || null;
-        token.admin = user.admin || false; // ✅ include admin in token
+        token.admin = user.admin || false;
       }
 
       if (trigger === "update" && session?.user) {
@@ -64,7 +64,7 @@ export const authOptions = {
         token.phone = session.user.phone;
         token.address = session.user.address;
         token.profileImage = session.user.profileImage || null;
-        token.admin = session.user.admin || false; // ✅ include admin on update
+        token.admin = session.user.admin || false;
       }
 
       return token;
@@ -76,11 +76,11 @@ export const authOptions = {
       session.user.phone = token.phone;
       session.user.address = token.address;
       session.user.profileImage = token.profileImage;
-      session.user.admin = token.admin || false; // ✅ now session.user.admin works
+      session.user.admin = token.admin || false;
       return session;
     },
   },
-};
+});
 
-const handler = NextAuth(authOptions);
+// Export handler in App Router style
 export { handler as GET, handler as POST };
