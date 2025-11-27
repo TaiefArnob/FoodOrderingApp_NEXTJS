@@ -12,7 +12,7 @@ const About = () => {
           About <span className="text-amber-500">Pipra Kitchen</span>
         </h1>
         <p className="text-lg md:text-xl text-[#4b0000]">
-          Pipra Kitchen is more than a rooftop restaurant — it's an experience crafted with love, tradition, and a passion for authentic food. Nestled above the city, we blend flavors of heritage with a modern vibe to give you a taste of home, under the open sky.
+          Pipra Kitchen is more than a rooftop restaurant — it is an experience crafted with love, tradition, and a passion for authentic food. Nestled above the city, we blend flavors of heritage with a modern vibe to give you a taste of home, under the open sky.
         </p>
         <p className="text-base md:text-lg text-[#4b0000]">
           Founded in 2020 in Dhaka, we started as a small family-owned kitchen and have grown into a community-loved eatery where every dish tells a story. Whether it’s a cozy dinner, a celebration, or just a casual evening, Pipra Kitchen welcomes you with warmth.
